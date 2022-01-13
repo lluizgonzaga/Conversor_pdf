@@ -2,6 +2,8 @@ const express = require("express");
 
 const app = express();
 
+const path = require("path");
+
 const bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({extended:false}));
@@ -10,9 +12,39 @@ app.use(bodyParser.json());
 
 app.use(express.static("public"));
 
+var list = ""
+
 const fs = require('fs');
 
 const multer =  require('multer');
+
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "public/uploads");
+    },
+    filename: function (req, file, cb) {
+      cb(
+        null,
+        file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+      );
+    },
+  });
+  
+  const imageFilter = function (req, file, cb) {
+    if (
+      file.mimetype == "image/png" ||
+      file.mimetype == "image/jpg" ||
+      file.mimetype == "image/jpeg"
+    ) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+      return cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
+    }
+  };
+  
+  var upload = multer({ storage: storage, fileFilter: imageFilter });
 
 const PORT = process.env.PORT || 3000;
 
@@ -31,8 +63,18 @@ app.get("/", (req, res) => {
 });
 
 
-app.post('/merge', (res,req) => {
+app.post('/merge',upload.array('files',100), (res,req) => {
+        list = ""
+        if(req.files){
+            req.files.forEach(file => {
 
+                console.log(file.path)
+                
+                list+=`${file.path}`
+                list+= " "
+            });
+            console.log(list)
+        }
 });
 
 app.listen(PORT, () => {
