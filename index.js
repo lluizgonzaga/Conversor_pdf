@@ -4,6 +4,10 @@ const app = express();
 
 const path = require("path");
 
+const {exec} = require('child_process')
+
+const outputFilePath = Date.now() + "output.pdf"
+
 const bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({extended:false}));
@@ -17,6 +21,7 @@ var list = ""
 const fs = require('fs');
 
 const multer =  require('multer');
+const { stdout, stderr } = require("process");
 
 
 var storage = multer.diskStorage({
@@ -74,6 +79,25 @@ app.post('/merge',upload.array('files',100), (res,req) => {
                 list+= " "
             });
             console.log(list)
+
+            exec(`magick convert ${list} ${outputFilePath}`,(err,stdout,stderr) => {
+                if(err) throw err
+
+                res.download(outputFilePath,(err) => {
+                    if(err) throw err
+
+                    //exclua o arquivo que está armazenado com erro 
+
+                    req.files.forEach(file => {
+                        fs.unlinkSync(file.path)
+                    });
+
+                    fs.statSync(outputFilePath)
+                })
+
+
+
+            })
         }
 });
 
