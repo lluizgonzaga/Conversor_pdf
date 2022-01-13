@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 
 const app = express();
 
@@ -10,9 +10,9 @@ const outputFilePath = Date.now() + "output.pdf"
 
 const bodyParser = require('body-parser');
 
-app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.urlencoded({extended:false}))
 
-app.use(bodyParser.json());
+app.use(bodyParser.json())
 
 app.use(express.static("public"));
 
@@ -63,12 +63,12 @@ if (!fs.existsSync(dir)) {
   fs.mkdirSync(subDirectory);
 }
 
-app.get("/", (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
 
-app.post('/merge',upload.array('files',100), (res,req) => {
+app.post('/merge',upload.array('files',100), (req,res) => {
         list = ""
         if(req.files){
             req.files.forEach(file => {
@@ -92,7 +92,7 @@ app.post('/merge',upload.array('files',100), (res,req) => {
                         fs.unlinkSync(file.path)
                     });
 
-                    fs.statSync(outputFilePath)
+                    fs.unlinkSync(outputFilePath)
                 })
 
 
